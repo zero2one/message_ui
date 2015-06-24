@@ -42,6 +42,7 @@ before_script:
   - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --profile=testing --no-server --db-url=mysql://root:@127.0.0.1/drupal_message_ui --enable=simpletest
 
   # Reference and enable travis_ci_drupal_module_example in build site.
+  - ls -lah
   - ln -s $(readlink -e $(cd -)) message_ui/drupal/sites/all/modules/message_ui
   - cd message_ui/drupal
   - drush --yes pm-enable message_ui_comment message_ui_node message_ui_og
