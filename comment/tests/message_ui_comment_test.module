@@ -1,0 +1,5 @@
+<?php
+/**
+ * @file
+ * Module to support tests for the message_ui_comment module.
+ */

@@ -1,0 +1,10 @@
+name = Comment tests
+description = Tests for the message_ui_comment module.
+core = 7.x
+package = Message
+dependencies[] = message_ui_comment
+hidden = TRUE
+
+; Test files
+files[] = message_ui_comment_test.config.test
+files[] = message_ui_comment_test.logging.test

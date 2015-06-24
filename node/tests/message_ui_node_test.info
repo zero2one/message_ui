@@ -1,0 +1,10 @@
+name = Node activity tests
+description = Tests for the message_ui_node module.
+core = 7.x
+package = Message
+dependencies[] = message_ui_node
+hidden = TRUE
+
+; Test files
+files[] = message_ui_node_test.config.test
+files[] = message_ui_node_test.logging.test

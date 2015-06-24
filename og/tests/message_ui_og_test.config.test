@@ -1,0 +1,191 @@
+<?php
+/**
+ * @file
+ * Web tests for the message_ui_og module configuration functionality.
+ */
+
+/**
+ * Tests about the og activity configuration.
+ */
+class MessageUiOgTestConfig extends DrupalWebTestCase {
+  /**
+   * Node type name to use in the tests.
+   *
+   * @var string
+   */
+  const TYPE = 'message_ui_og_test';
+
+  /**
+   * Get the test info.
+   *
+   * @return array
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Message UI - Activity Organic Groups Configuration',
+      'description' => 'Test the activity configuration for Organic Groups.',
+      'group' => 'Message UI',
+    );
+  }
+
+  /**
+   * Setup the test environment.
+   */
+  public function setUp() {
+    $modules = array('message', 'og', 'og_ui', 'message_ui_node', 'message_ui_og');
+    parent::setUp($modules);
+
+    // create a new user with some permissions you need; then log in.
+    $admin = $this->drupalCreateUser(array(
+        'administer content types',
+        'administer nodes'
+      ));
+    $this->drupalLogin($admin);
+
+    // Create a new group node type.
+    $info = (object) array(
+      'name' => self::TYPE,
+      'type' => self::TYPE,
+      'base' => 'node_content',
+      'module' => 'node',
+      'description' => t('Test content type for message_ui_og_test.'),
+      'has_title' => 1,
+      'title_label' => t('Title'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+      'disabled' => 0,
+      'orig_type' => self::TYPE,
+    );
+    node_type_save($info);
+    og_create_field(OG_GROUP_FIELD, 'node', self::TYPE);
+
+    $this->assertTrue(og_is_group_type('node', self::TYPE));
+  }
+
+  /**
+   * Test the functionality to set the activity configuration for node types.
+   */
+  public function testConfig() {
+    // Test the variable name creator.
+    $name = message_ui_og_variable_name(self::TYPE);
+    $this->assertEqual('message_ui_og_' . self::TYPE, $name);
+
+    // Test the default variable value.
+    $this->assertFalse(variable_get($name, FALSE));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'request'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'revoke'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'join'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'leave'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'approve'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'reject'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'remove'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'block'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'unblock'));
+
+    // Check if the form fields are not present on a non group node type.
+    $this->drupalGet('admin/structure/types/manage/page');
+    $this->assertNoFieldByName('message_ui_og[request]');
+    $this->assertNoFieldByName('message_ui_og[revoke]');
+    $this->assertNoFieldByName('message_ui_og[join]');
+    $this->assertNoFieldByName('message_ui_og[leave]');
+    $this->assertNoFieldByName('message_ui_og[approve]');
+    $this->assertNoFieldByName('message_ui_og[reject]');
+    $this->assertNoFieldByName('message_ui_og[remove]');
+    $this->assertNoFieldByName('message_ui_og[block]');
+    $this->assertNoFieldByName('message_ui_og[unblock]');
+
+    // Check if the form fields are present on a non group node type.
+    $this->drupalGet('admin/structure/types/manage/' . self::TYPE);
+    $this->assertFieldByName('message_ui_og[request]');
+    $this->assertFieldByName('message_ui_og[revoke]');
+    $this->assertFieldByName('message_ui_og[join]');
+    $this->assertFieldByName('message_ui_og[leave]');
+    $this->assertFieldByName('message_ui_og[approve]');
+    $this->assertFieldByName('message_ui_og[reject]');
+    $this->assertFieldByName('message_ui_og[remove]');
+    $this->assertFieldByName('message_ui_og[block]');
+    $this->assertFieldByName('message_ui_og[unblock]');
+
+    // Edit the activity settings.
+    $edit = array(
+      'message_ui_og[revoke]' => 'revoke',
+      'message_ui_og[join]' => 'join',
+      'message_ui_og[leave]' => 'leave',
+      'message_ui_og[approve]' => 'approve',
+      'message_ui_og[reject]' => 'reject',
+    );
+    $this->drupalPost(
+      'admin/structure/types/manage/' . self::TYPE,
+      $edit,
+      t('Save content type')
+    );
+
+    // Check if the settings are saved in the variable.
+    $config = variable_get($name, array());
+    $this->assertEqual(
+      $config,
+      array(
+        'request' => 0,
+        'revoke' => 'revoke',
+        'join' => 'join',
+        'leave' => 'leave',
+        'approve' => 'approve',
+        'reject' => 'reject',
+        'remove' => 0,
+        'block' => 0,
+        'unblock' => 0,
+      )
+    );
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'request'));
+    $this->assertTrue(message_ui_og_needs_message(self::TYPE, 'revoke'));
+    $this->assertTrue(message_ui_og_needs_message(self::TYPE, 'join'));
+    $this->assertTrue(message_ui_og_needs_message(self::TYPE, 'leave'));
+    $this->assertTrue(message_ui_og_needs_message(self::TYPE, 'approve'));
+    $this->assertTrue(message_ui_og_needs_message(self::TYPE, 'reject'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'remove'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'block'));
+    $this->assertFalse(message_ui_og_needs_message(self::TYPE, 'unblock'));
+
+    // Rename the node type.
+    $new_type = self::TYPE . '_new';
+    $new_name = $name . '_new';
+    $edit = array(
+      'type' => $new_type,
+    );
+    $this->drupalPost(
+      'admin/structure/types/manage/' . self::TYPE,
+      $edit,
+      t('Save content type')
+    );
+
+    // Check if the old variable is deleted and a new one is created.
+    $this->assertFalse(variable_get($name, FALSE));
+    $this->assertEqual(
+      variable_get($new_name, array()),
+      array(
+        'request' => 0,
+        'revoke' => 'revoke',
+        'join' => 'join',
+        'leave' => 'leave',
+        'approve' => 'approve',
+        'reject' => 'reject',
+        'remove' => 0,
+        'block' => 0,
+        'unblock' => 0,
+      )
+    );
+
+    // Delete the node type.
+    $edit = array();
+    $this->drupalPost(
+      'admin/structure/types/manage/' . $new_type . '/delete',
+      $edit,
+      t('Delete')
+    );
+
+    // Check if the variable is deleted.
+    $this->assertFalse(variable_get($new_name, FALSE));
+  }
+
+}

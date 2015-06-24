@@ -1,0 +1,213 @@
+<?php
+/**
+ * @file
+ * Install hooks for the message_ui_node module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function message_ui_node_install() {
+  $actions = array(
+    'insert',
+    'update',
+    'delete',
+  );
+
+  _message_ui_node_install_message_types();
+  _message_ui_node_install_create_fields($actions);
+}
+
+/**
+ * Create the message types.
+ */
+function _message_ui_node_install_message_types() {
+  $types   = array();
+  $types[] = entity_import(
+    'message_type', '{
+    "name" : "message_ui_node_insert",
+    "description" : "Node : Create",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "message_type",
+    "data" : {
+      "token options" : { "clear" : 1 },
+      "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" }
+    },
+    "language" : "",
+    "arguments" : null,
+    "message_text" : { "und" : [
+        {
+          "value" : "\\u003Ca href=\\u0022user\\/[message:user:uid]\\u0022\\u003E[message:user:name]\\u003C\\/a\\u003E created @{message:message-node:type}: \\u003Ca href=\\u0022node\\/[message:message-node:nid]\\u0022\\u003E[message:message-node:title]\\u003C\\/a\\u003E.",
+          "format" : "filtered_html",
+          "safe_value" : "\\u003Cp\\u003E\\u003Ca href=\\u0022user\\/[message:user:uid]\\u0022\\u003E[message:user:name]\\u003C\\/a\\u003E created @{message:message-node:type}: \\u003Ca href=\\u0022node\\/[message:message-node:nid]\\u0022\\u003E[message:message-node:title]\\u003C\\/a\\u003E.\\u003C\\/p\\u003E\\n"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }'
+  );
+  $types[] = entity_import(
+    'message_type', '{
+    "name" : "message_ui_node_update",
+    "description" : "Node : Update",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "message_type",
+    "data" : {
+      "token options" : { "clear" : 1 },
+      "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" }
+    },
+    "language" : "",
+    "arguments" : null,
+    "message_text" : { "und" : [
+        {
+          "value" : "\\u003Ca href=\\u0022user\\/[message:user:uid]\\u0022\\u003E[message:user:name]\\u003C\\/a\\u003E updated @{message:message-node:type}: \\u003Ca href=\\u0022node\\/[message:message-node:nid]\\u0022\\u003E[message:message-node:title]\\u003C\\/a\\u003E.",
+          "format" : "filtered_html",
+          "safe_value" : "\\u003Cp\\u003E\\u003Ca href=\\u0022user\\/[message:user:uid]\\u0022\\u003E[message:user:name]\\u003C\\/a\\u003E updated @{message:message-node:type}: \\u003Ca href=\\u0022node\\/[message:message-node:nid]\\u0022\\u003E[message:message-node:title]\\u003C\\/a\\u003E.\\u003C\\/p\\u003E\\n"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }'
+  );
+  $types[] = entity_import(
+    'message_type', '{
+    "name" : "message_ui_node_delete",
+    "description" : "Node : Delete",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "message_type",
+    "data" : {
+      "token options" : { "clear" : 0 },
+      "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" }
+    },
+    "language" : "",
+    "arguments" : null,
+    "message_text" : { "und" : [
+        {
+          "value" : "\\u003Ca href=\\u0022user\\/@{message:user:uid}\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E deleted @{message:message-node:type} : @{message:message-node:title}",
+          "format" : "filtered_html",
+          "safe_value" : "\\u003Cp\\u003E\\u003Ca href=\\u0022user\\/@{message:user:uid}\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E deleted @{message:message-node:type} : @{message:message-node:title}\\u003C\\/p\\u003E\\n"
+        }
+      ]
+    },
+    "rdf_mapping" : []
+  }'
+  );
+
+  foreach ($types as $type) {
+    message_type_save($type);
+  }
+}
+
+/**
+ * Helper to create the node reference fields.
+ *
+ * @param array $actions
+ *   The possible action types.
+ */
+function _message_ui_node_install_create_fields($actions) {
+  $types = array(
+    'message_node' => array(
+      'label' => st('Node'),
+      'description' => st('The node where this message is about.'),
+    ),
+    'message_ui_group' => array(
+      'label' => st('Group'),
+      'description' => st('The (optional) group the node belongs to.'),
+    ),
+  );
+
+  $weight = 0;
+  foreach ($types as $type => $info) {
+    $weight++;
+
+    $field = field_info_field($type);
+    if (!$field) {
+      $field = array(
+        'active' => 1,
+        'cardinality' => 1,
+        'deleted' => 0,
+        'entity_types' => array(),
+        'field_name' => $type,
+        'foreign keys' => array(
+          'node' => array(
+            'columns' => array(
+              'target_id' => 'nid',
+            ),
+            'table' => 'node',
+          ),
+        ),
+        'indexes' => array(
+          'target_id' => array(
+            0 => 'target_id',
+          ),
+        ),
+        'locked' => 0,
+        'module' => 'entityreference',
+        'settings' => array(
+          'handler' => 'base',
+          'handler_settings' => array(
+            'behaviors' => array(
+              'views-select-list' => array(
+                'status' => 0,
+              ),
+            ),
+            'sort' => array(
+              'type' => 'none',
+            ),
+            'target_bundles' => array(),
+          ),
+          'target_type' => 'node',
+        ),
+        'translatable' => 0,
+        'type' => 'entityreference',
+      );
+      field_create_field($field);
+    }
+
+    foreach ($actions as $action) {
+      // message-message_ui_node_ACTION-message_ui_node
+      $instance = array(
+        'bundle' => 'message_ui_node_' . $action,
+        'default_value' => NULL,
+        'default_value_function' => '',
+        'deleted' => 0,
+        'description' => $info['description'],
+        'display' => array(
+          'default' => array(
+            'label' => 'above',
+            'settings' => array(),
+            'type' => 'hidden',
+            'weight' => 1,
+          ),
+        ),
+        'entity_type' => 'message',
+        'field_name' => $type,
+        'label' => $info['label'],
+        'required' => 1,
+        'settings' => array(
+          'behaviors' => array(
+            'prepopulate' => array(
+              'status' => 0,
+            ),
+          ),
+          'user_register_form' => FALSE,
+        ),
+        'widget' => array(
+          'active' => 1,
+          'module' => 'entityreference',
+          'settings' => array(
+            'match_operator' => 'CONTAINS',
+            'path' => '',
+            'size' => 60,
+          ),
+          'type' => 'entityreference_autocomplete',
+          'weight' => $weight,
+        ),
+      );
+      field_create_instance($instance);
+    }
+  }
+}

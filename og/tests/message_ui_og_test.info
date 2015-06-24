@@ -1,0 +1,10 @@
+name = Organic Group activity tests
+description = Tests for the message_ui_og module.
+core = 7.x
+package = Message
+dependencies[] = message_ui_node
+hidden = TRUE
+
+; Test files
+files[] = message_ui_og_test.config.test
+files[] = message_ui_og_test.logging.test

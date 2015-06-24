@@ -1,0 +1,149 @@
+<?php
+/**
+ * @file
+ * Web tests for the message_ui_comment module configuration functionality.
+ */
+
+/**
+ * Tests about the comment activity configuration.
+ */
+class MessageUiCommentTestConfig extends DrupalWebTestCase {
+  /**
+   * Node type name to use in the tests.
+   *
+   * @var string
+   */
+  const TYPE = 'message_ui_comment_test';
+
+  /**
+   * Get the test info.
+   *
+   * @return array
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Message UI - Activity Comment Configuration',
+      'description' => 'Test the activity configuration for node comments.',
+      'group' => 'Message UI',
+    );
+  }
+
+  /**
+   * Setup the test environment.
+   */
+  public function setUp() {
+    $modules = array('message', 'message_ui_node', 'message_ui_comment');
+    parent::setUp($modules);
+
+    // create a new user with some permissions you need; then log in.
+    $admin = $this->drupalCreateUser(array(
+        'administer content types',
+        'administer nodes',
+        'administer comments',
+      ));
+    $this->drupalLogin($admin);
+
+    // Create a new node type.
+    $info = (object) array(
+      'name' => self::TYPE,
+      'type' => self::TYPE,
+      'base' => 'node_content',
+      'module' => 'node',
+      'description' => t('Test content type for message_ui_comment_test.'),
+      'has_title' => 1,
+      'title_label' => t('Title'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+      'disabled' => 0,
+      'orig_type' => self::TYPE,
+    );
+    node_type_save($info);
+
+    variable_set('comment_article', 2);
+  }
+
+  /**
+   * Test the functionality to set the activity configuration for content types.
+   */
+  public function testConfig() {
+    // Test the variable name creator.
+    $name = message_ui_comment_variable_name(self::TYPE);
+    $this->assertEqual('message_ui_comment_' . self::TYPE, $name);
+
+    // Test the default variable value.
+    $this->assertFalse(variable_get($name, FALSE));
+    $this->assertFalse(message_ui_comment_needs_message(self::TYPE, 'insert'));
+    $this->assertFalse(message_ui_comment_needs_message(self::TYPE, 'update'));
+    $this->assertFalse(message_ui_comment_needs_message(self::TYPE, 'delete'));
+
+    // Edit the activity settings.
+    $edit = array(
+      'message_ui_comment[insert]' => 'insert',
+      'message_ui_comment[update]' => 'update',
+    );
+    $this->drupalPost(
+      'admin/structure/types/manage/' . self::TYPE,
+      $edit,
+      t('Save content type')
+    );
+
+    // Check if the settings are saved in the variable.
+    $config = variable_get($name, array());
+    $this->assertEqual(
+      $config,
+      array('insert' => 'insert', 'update' => 'update', 'delete' => 0)
+    );
+    $this->assertTrue(message_ui_comment_needs_message(self::TYPE, 'insert'));
+    $this->assertTrue(message_ui_comment_needs_message(self::TYPE, 'update'));
+    $this->assertFalse(message_ui_comment_needs_message(self::TYPE, 'delete'));
+
+    // Check if the content type comes from a comment object.
+    $this->assertTrue(
+      message_ui_comment_needs_message('comment_node_' . self::TYPE, 'insert')
+    );
+    $this->assertTrue(
+      message_ui_comment_needs_message('comment_node_' . self::TYPE, 'update')
+    );
+    $this->assertFalse(
+      message_ui_comment_needs_message('comment_node_' . self::TYPE, 'delete')
+    );
+
+    // Check messages when deleting nodes in combinations with the message
+    // module settings.
+    variable_set(
+      $name,
+      array('insert' => 'insert', 'update' => 'update', 'delete' => 'delete')
+    );
+
+    $this->assertFalse(message_ui_comment_needs_message(self::TYPE, 'delete'));
+    variable_set('message_delete_on_entity_delete', array());
+    $this->assertTrue(message_ui_comment_needs_message(self::TYPE, 'delete'));
+
+    // Rename the node type.
+    $new_type = self::TYPE . '_new';
+    $new_name = $name . '_new';
+    $edit = array(
+      'type' => $new_type,
+    );
+    $this->drupalPost(
+      'admin/structure/types/manage/' . self::TYPE,
+      $edit,
+      t('Save content type')
+    );
+
+    // Check if the old variable is deleted and a new one is created.
+    $this->assertFalse(variable_get($name, FALSE));
+    $this->assertEqual(
+      variable_get($new_name, array()),
+      array('insert' => 'insert', 'update' => 'update', 'delete' => 0)
+    );
+
+    // Delete the node type.
+    node_type_delete($new_type);
+
+    // Check if the variable is deleted.
+    $this->assertFalse(variable_get($new_name, FALSE));
+  }
+
+}
