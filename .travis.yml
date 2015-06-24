@@ -46,18 +46,18 @@ before_script:
   - cd ../..
 
   # Create new site with simpletest enabled.
-  - drush si -y drupal_message_ui --profile=testing --no-server --locale=en --site-name=drupal --account-name=drupal --account-pass=drupal --account-mail=drupal@message.ui --db-url=mysql://mysql://root:@127.0.0.1/drupal --uri=http://127.0.0.1:8080 --enable=simpletest
+  - drush -y qd module_test --profile=testing --no-server --locale=en --site-name=drupal --account-pass=drupal --account-mail=admin@drupal.test --db-url=mysql://root:@127.0.0.1/drupal --uri=http://127.0.0.1:8080 --enable=simpletest
 
   # Reference and enable travis_ci_drupal_module_example in build site.
   - ls -lah
-  - ls -lah drupal_message_ui
-  - ls -lah drupal_message_ui/drupal
+  - ls -lah module_test
+  - ls -lah module_test/drupal
 
-  - ln -s $(readlink -e $(cd -)) drupal_message_ui/drupal/sites/all/modules/message_ui
+  - ln -s $(readlink -e $(cd -)) module_test/drupal/sites/all/modules/message_ui
 
-  - ls -lah drupal_message_ui/drupal/sites/all/modules
+  - ls -lah module_test/drupal/sites/all/modules
 
-  - cd drupal_message_ui/drupal
+  - cd module_test/drupal
   - drush --yes pm-enable message_ui_comment message_ui_node message_ui_og
 
   # Start a web server on port 8080.
