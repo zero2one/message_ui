@@ -26,14 +26,14 @@ DISABLE ACTIVITY LOGGING
 Some scripts (e.g. batch actions) can require that no activity is logged. You
 can temporarily disable this by using the disable method:
 
-message_ui_comment_disable();
+message_ui_comment_message_disable();
 
 This will disable the activity logging only during the current page request.
 Disabling is not persistent between requests.
 
 You can enable the activity logging using:
 
-message_ui_comment_enable();
+message_ui_comment_message_enable();
 
 
 ACTIVITY MESSAGES
@@ -43,9 +43,9 @@ This messages can be changed using the message interface:
 /admin/structure/messages
 
 The following message types are defined:
-- message_ui_comment_insert : when a comment is created.
-- message_ui_comment_update : when a comment is updated.
-- message_ui_comment_delete : when a comment is deleted.
+- comment_insert : when a comment is created.
+- comment_update : when a comment is updated.
+- comment_delete : when a comment is deleted.
 
 NOTE: an update will only be logged if:
 - The update is done by somebody else then the person who did the last update.

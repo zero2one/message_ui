@@ -25,7 +25,7 @@ function _message_ui_comment_install_message_types() {
   $types   = array();
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_comment_delete",
+    "name" : "comment_delete",
     "description" : "Comment : Delete",
     "argument_keys" : [],
     "argument" : [],
@@ -49,7 +49,7 @@ function _message_ui_comment_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_comment_insert",
+    "name" : "comment_insert",
     "description" : "Comment : Create",
     "argument_keys" : [],
     "argument" : [],
@@ -73,7 +73,7 @@ function _message_ui_comment_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_comment_update",
+    "name" : "comment_update",
     "description" : "Comment : Update",
     "argument_keys" : [],
     "argument" : [],
@@ -107,9 +107,9 @@ function _message_ui_comment_install_message_types() {
  * @param array $actions
  *   The possible action types.
  */
-function _message_ui_comment_install_create_fields($actions) {
+function _message_ui_comment_install_create_fields(array $actions) {
   $types = array(
-    'message_ui_comment' => array(
+    'message_comment' => array(
       'label' => st('Comment'),
       'description' => st('The comment where this message is about.'),
       'target_type' => 'comment',
@@ -122,7 +122,7 @@ function _message_ui_comment_install_create_fields($actions) {
         ),
       ),
     ),
-    'message_ui_group' => array(
+    'message_group' => array(
       'label' => st('Group'),
       'description' => st('The (optional) group the node belongs to.'),
       'target_type' => 'node',
@@ -192,9 +192,8 @@ function _message_ui_comment_install_create_fields($actions) {
     }
 
     foreach ($actions as $action) {
-      // e.g. message-message_ui_comment_ACTION-message_ui_node
       $instance = array(
-        'bundle' => 'message_ui_comment_' . $action,
+        'bundle' => 'comment_' . $action,
         'default_value' => NULL,
         'default_value_function' => '',
         'deleted' => 0,
