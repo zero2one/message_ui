@@ -20,13 +20,22 @@ before_install:
 before_install:
   # Update OS.
   - sudo apt-get update > /dev/null
+
   # Update Composer.
   - composer self-update
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 
+
+
 install:
   # Install php packages required for running a web server from drush on php 5.3.
   - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
+  # Catch outgoing emails so we don't get errors.
+  - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
+
+  # Setup a database.
+  - mysql -e 'create database drupal'
 
   # Install drush globally.
   - composer global require drush/drush:6.*
@@ -36,11 +45,8 @@ before_script:
   # lookup.
   - cd ../..
 
-  # Create new site, stubbing sendmail path with true to prevent delivery
-  # errors and manually resolving drush path.
-  - mysql -e 'create database drupal_message_ui'
-  - php -d sendmail_path=`which true`
-  - drush si -y drupal_message_ui --profile=testing --no-server --locale=en --site-name=drupal_message_ui --account-name=drupal --account-pass=drupal --account-mail=drupal@message.ui --db-url=mysql://mysql://root:@127.0.0.1/drupal_message_ui --uri=http://127.0.0.1:8080 --enable=simpletest
+  # Create new site with simpletest enabled.
+  - drush si -y drupal_message_ui --profile=testing --no-server --locale=en --site-name=drupal --account-name=drupal --account-pass=drupal --account-mail=drupal@message.ui --db-url=mysql://mysql://root:@127.0.0.1/drupal --uri=http://127.0.0.1:8080 --enable=simpletest
 
   # Reference and enable travis_ci_drupal_module_example in build site.
   - ls -lah
@@ -48,7 +54,7 @@ before_script:
   - ls -lah drupal_message_ui/drupal
 
   - ln -s $(readlink -e $(cd -)) drupal_message_ui/drupal/sites/all/modules/message_ui
-  
+
   - ls -lah drupal_message_ui/drupal/sites/all/modules
 
   - cd drupal_message_ui/drupal
