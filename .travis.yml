@@ -39,12 +39,12 @@ before_script:
   # Create new site, stubbing sendmail path with true to prevent delivery
   # errors and manually resolving drush path.
   - mysql -e 'create database drupal_message_ui'
-  - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --profile=testing --no-server --db-url=mysql://root:@127.0.0.1/drupal_message_ui --enable=simpletest message_ui_comment message_ui_node message_ui_og
+  - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --profile=testing --no-server --db-url=mysql://root:@127.0.0.1/drupal_message_ui --enable=simpletest
 
   # Reference and enable travis_ci_drupal_module_example in build site.
   - ln -s $(readlink -e $(cd -)) message_ui/drupal/sites/all/modules/message_ui
   - cd message_ui/drupal
-  - drush --yes pm-enable message_ui_og
+  - drush --yes pm-enable message_ui_comment message_ui_node message_ui_og
 
   # Start a web server on port 8080.
   # Run in the background; wait for initialization.
