@@ -41,22 +41,14 @@ install:
 
 
 before_script:
-  # Navigate out of module directory to prevent blown stack by recursive module
-  # lookup.
+  # Navigate out of module directory to prevent recursive module lookup.
   - cd ../..
 
   # Create new site with simpletest enabled.
   - drush -y qd module_test --profile=testing --no-server --locale=en --site-name=drupal --account-pass=drupal --account-mail=admin@drupal.test --db-url=mysql://root:@127.0.0.1/drupal --uri=http://127.0.0.1:8080 --enable=simpletest
 
-  # Reference and enable travis_ci_drupal_module_example in build site.
-  - ls -lah
-  - ls -lah module_test
-  - ls -lah module_test/drupal
-
+  # Reference and enable message_ui modules.
   - ln -s $(readlink -e $(cd -)) module_test/drupal/sites/all/modules/message_ui
-
-  - ls -lah module_test/drupal/sites/all/modules
-
   - cd module_test/drupal
   - drush --yes pm-enable message_ui_comment message_ui_node message_ui_og
 
