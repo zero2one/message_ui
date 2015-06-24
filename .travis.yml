@@ -10,7 +10,7 @@ matrix:
 
 
 mysql:
-  database: drupal_message_ui
+  database: drupal
   username: root
   encoding: utf8
 
@@ -31,9 +31,6 @@ install:
 
   # Catch outgoing emails so we don't get errors.
   - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
-
-  # Setup a database.
-  - mysql -e 'create database drupal'
 
   # Install drush globally.
   - composer global require drush/drush:6.*
