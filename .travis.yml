@@ -1,0 +1,55 @@
+language: php
+
+php:
+  - 5.4
+
+matrix:
+  fast_finish: true
+
+mysql:
+  database: drupal_message_ui
+  username: root
+  encoding: utf8
+
+before_install:
+  - date
+  - sudo apt-get update > /dev/null
+  - composer self-update
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+before_install:
+  # Update OS.
+  - sudo apt-get update > /dev/null
+  # Update Composer.
+  - composer self-update
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+install:
+  # Install php packages required for running a web server from drush on php 5.3.
+  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
+  # Install drush globally.
+  - composer global require drush/drush:6.*
+
+before_script:
+  # Navigate out of module directory to prevent blown stack by recursive module
+  # lookup.
+  - cd ../..
+
+  # Create new site, stubbing sendmail path with true to prevent delivery
+  # errors and manually resolving drush path.
+  - mysql -e 'create database drupal_message_ui'
+  - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --profile=testing --no-server --db-url=mysql://root:@127.0.0.1/drupal_message_ui --enable=simpletest message_ui_comment message_ui_node message_ui_og
+
+  # Reference and enable travis_ci_drupal_module_example in build site.
+  - ln -s $(readlink -e $(cd -)) message_ui/drupal/sites/all/modules/message_ui
+  - cd message_ui/drupal
+  - drush --yes pm-enable message_ui_og
+
+  # Start a web server on port 8080.
+  # Run in the background; wait for initialization.
+  - drush runserver 127.0.0.1:8080 &
+  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
+
+script:
+  - drush test-run 'Message UI' --uri=http://127.0.0.1:8080
