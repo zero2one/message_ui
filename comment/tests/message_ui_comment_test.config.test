@@ -19,6 +19,7 @@ class MessageUiCommentTestConfig extends DrupalWebTestCase {
    * Get the test info.
    *
    * @return array
+   *   The test information.
    */
   public static function getInfo() {
     return array(
@@ -35,7 +36,7 @@ class MessageUiCommentTestConfig extends DrupalWebTestCase {
     $modules = array('message', 'message_ui_node', 'message_ui_comment');
     parent::setUp($modules);
 
-    // create a new user with some permissions you need; then log in.
+    // Create a new user with some permissions you need; then log in.
     $admin = $this->drupalCreateUser(array(
         'administer content types',
         'administer nodes',

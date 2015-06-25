@@ -1,7 +1,8 @@
 DESCRIPTION
---------------------------
-The message_ui_node module contains the functionality to log activity
-performed on nodes.
+-----------
+
+The message_ui_comment module contains the functionality to log activity
+performed on comments.
 The activity that can be logged is:
 - insert
 - update
@@ -12,17 +13,19 @@ See http://drupal.org/project/message
 
 
 USAGE
---------------------------
+-----
+
 Enabling the activity logging can be set per content type and per activity.
 See the node type settings for the content type you want to enable the activity
 logging.
 
-NOTE: The message module deletes by default all node messages when a node is
+NOTE: The message module deletes by default all node messages when a comment is
 deleted. You can disable this trough /admin/config/system/message.
 
 
 DISABLE ACTIVITY LOGGING
---------------------------
+------------------------
+
 Some scripts (e.g. batch actions) can require that no activity is logged. You
 can temporarily disable this by using the disable method:
 
@@ -37,15 +40,16 @@ message_ui_comment_message_enable();
 
 
 ACTIVITY MESSAGES
---------------------------
+-----------------
+
 This module defines the message types used to log the activity.
 This messages can be changed using the message interface:
 /admin/structure/messages
 
 The following message types are defined:
-- node_insert : when a node is created.
-- node_update : when a node is updated.
-- node_delete : when a node is deleted.
+- comment_insert : when a comment is created.
+- comment_update : when a comment is updated.
+- comment_delete : when a comment is deleted.
 
 NOTE: an update will only be logged if:
 - The update is done by somebody else then the person who did the last update.

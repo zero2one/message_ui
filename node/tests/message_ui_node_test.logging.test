@@ -34,6 +34,7 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
    * Get the test info.
    *
    * @return array
+   *   The test information.
    */
   public static function getInfo() {
     return array(
@@ -75,7 +76,7 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
     );
     $this->refreshVariables();
 
-    // create a new user with some permissions you need; then log in.
+    // Create a new user with some permissions you need; then log in.
     $permissions = array(
       'administer nodes',
       'bypass node access',
@@ -264,4 +265,5 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
     $count = (int) $query->execute();
     return $count;
   }
+
 }

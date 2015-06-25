@@ -177,19 +177,14 @@ function message_ui_comment_update_needs_message($comment) {
     return TRUE;
   }
 
-  // @TODO: 4. Check if the last message was for another user then the one
+  // 4. Check if the last message was for another user then the one
   // updating the comment.
   $account = $GLOBALS['user'];
   if ((int) $account->uid !== (int) $message->user->uid->value()) {
     return TRUE;
   }
 
-  // No update needed.
-  // @TODO: should we update the message timestamp?
-  // This could lead to wrong data.
-  // $message->timestamp->set($node->changed);
-  // $message->save();
-
+  // No need for a message.
   return FALSE;
 }
 

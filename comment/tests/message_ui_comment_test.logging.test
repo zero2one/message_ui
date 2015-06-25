@@ -207,7 +207,6 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
     message_ui_comment_message_disable();
     $this->assertFalse(message_ui_comment_message_is_enabled());
 
-
     // Create a node.
     $node = $this->drupalCreateNode(array(
         'type' => self::TYPE,
