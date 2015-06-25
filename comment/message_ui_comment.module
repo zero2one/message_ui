@@ -179,8 +179,8 @@ function message_ui_comment_update_needs_message($comment) {
 
   // 4. Check if the last message was for another user then the one
   // updating the comment.
-  $account = $GLOBALS['user'];
-  if ((int) $account->uid !== (int) $message->user->uid->value()) {
+  global $user;
+  if ((int) $user->uid !== (int) $message->user->uid->value()) {
     return TRUE;
   }
 
