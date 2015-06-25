@@ -19,6 +19,7 @@ class MessageUiOgTestConfig extends DrupalWebTestCase {
    * Get the test info.
    *
    * @return array
+   *   The test info.
    */
   public static function getInfo() {
     return array(
@@ -32,13 +33,19 @@ class MessageUiOgTestConfig extends DrupalWebTestCase {
    * Setup the test environment.
    */
   public function setUp() {
-    $modules = array('message', 'og', 'og_ui', 'message_ui_node', 'message_ui_og');
+    $modules = array(
+      'message',
+      'og',
+      'og_ui',
+      'message_ui_node',
+      'message_ui_og',
+    );
     parent::setUp($modules);
 
-    // create a new user with some permissions you need; then log in.
+    // Create a new user with some permissions you need; then log in.
     $admin = $this->drupalCreateUser(array(
         'administer content types',
-        'administer nodes'
+        'administer nodes',
       ));
     $this->drupalLogin($admin);
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Code to support logging Organic groups related activities using the messaging module.
+ * Module to integrate message module with Organic groups related activities.
  */
 
 /******************************************************************************
@@ -106,15 +106,15 @@ function message_ui_og_node_type_delete($info) {
  *   The type type we want to log a message for.
  * @param string $action
  *   The action performed on the type. The supported actions are:
- *   - request
- *   - revoke
- *   - join
- *   - leave
- *   - approve
- *   - reject
- *   - remove
- *   - block
- *   - unblock
+ *   - request.
+ *   - revoke.
+ *   - join.
+ *   - leave.
+ *   - approve.
+ *   - reject.
+ *   - remove.
+ *   - block.
+ *   - unblock.
  *
  * @return bool
  *   Needs an message yes/no.
@@ -137,7 +137,7 @@ function message_ui_og_needs_message($type, $action) {
 }
 
 /**
- * Helper to get the variable name to access the activity config per content type.
+ * Get the variable name to access the activity config per content type.
  *
  * @param string $type
  *   The content type.
@@ -158,9 +158,6 @@ function message_ui_og_variable_name($type) {
  * Implements hook_og_membership_insert().
  *
  * Log a message when a user joins a group.
- *
- * @param OgMembership $og_membership
- *   The OG Membership as saved in the database.
  */
 function message_ui_og_og_membership_insert(OgMembership $og_membership) {
   if (!message_ui_og_message_is_enabled()) {
@@ -205,9 +202,6 @@ function message_ui_og_og_membership_insert(OgMembership $og_membership) {
  * Implements hook_og_membership_update().
  *
  * Log a message when the membership type changes.
- *
- * @param OgMembership $og_membership
- *   The OG Membership as saved in the database.
  */
 function message_ui_og_og_membership_update(OgMembership $og_membership) {
   global $user;
@@ -269,9 +263,6 @@ function message_ui_og_og_membership_update(OgMembership $og_membership) {
  * Implements hook_og_membership_delete().
  *
  * Log a message when the membership is removed.
- *
- * @param OgMembership $og_membership
- *   The OG Membership that will be deleted.
  */
 function message_ui_og_og_membership_delete(OgMembership $og_membership) {
   if (!message_ui_og_message_is_enabled()) {
@@ -316,6 +307,7 @@ function message_ui_og_og_membership_delete(OgMembership $og_membership) {
  *   The action performed on the membership.
  *
  * @return EntityMetadataWrapper
+ *   The message wrapped by EntityMetadataWrapper.
  */
 function message_ui_og_create_membership_message(
   OgMembership $og_membership,

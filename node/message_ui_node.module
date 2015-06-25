@@ -139,7 +139,7 @@ function message_ui_node_needs_message($type, $action) {
  *      duplicates for.
  *   4. Checks if that message is by the same user as the one updating the node.
  *
- * @param stdClass $node
+ * @param object $node
  *   The node that is being updated.
  *
  * @return bool
@@ -175,10 +175,6 @@ function message_ui_node_update_needs_message($node) {
   if ((int) $new_revision->revision_uid !== (int) $message->user->uid->value()) {
     return TRUE;
   }
-
-  // No update needed.
-  // @TODO: should we update the message timestamp?
-  // This could lead to wrong data.
 
   return FALSE;
 }

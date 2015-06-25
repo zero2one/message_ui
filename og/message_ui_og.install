@@ -257,7 +257,7 @@ function _message_ui_og_install_message_types() {
  * @param array $actions
  *   The possible action types.
  */
-function _message_ui_og_install_create_fields($actions) {
+function _message_ui_og_install_create_fields(array $actions) {
   $types = array(
     'message_user' => array(
       'label' => st('User'),
