@@ -322,13 +322,13 @@ function message_ui_og_create_membership_message(
   );
 
   $message = message_create(
-    'message_ui_og_' . $action,
+    'og_' . $action,
     array('arguments' => $arguments)
   );
 
   $wrapper = entity_metadata_wrapper('message', $message);
   $wrapper->message_group->set($group_nid);
-  $wrapper->message_user->set($account);
+  $wrapper->message_member->set($account);
 
   return $wrapper;
 }

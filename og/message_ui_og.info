@@ -1,7 +1,7 @@
-name = Organic groups activities
-description = Logs activities about Organic groups: group memberships, group role changes, ...
+name = Message : Organic Groups
+description = Logs activity messages about Organic groups: group memberships, group role changes, ...
 core = 7.x
-package = Activity
+package = Message
 dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = message

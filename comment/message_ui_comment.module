@@ -236,7 +236,7 @@ function message_ui_comment_create_message($comment, $action) {
   );
 
   $message = message_create(
-    'message_ui_comment_' . $action,
+    'comment_' . $action,
     array('arguments' => $arguments)
   );
 

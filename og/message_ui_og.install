@@ -259,9 +259,9 @@ function _message_ui_og_install_message_types() {
  */
 function _message_ui_og_install_create_fields(array $actions) {
   $types = array(
-    'message_user' => array(
-      'label' => st('User'),
-      'description' => st('The user the membership is about.'),
+    'message_member' => array(
+      'label' => st('Member'),
+      'description' => st('The group member the message is about.'),
       'target_type' => 'user',
       'foreign keys' => array(
         'users' => array(
@@ -274,7 +274,7 @@ function _message_ui_og_install_create_fields(array $actions) {
     ),
     'message_group' => array(
       'label' => st('Group'),
-      'description' => st('The group the membership is about.'),
+      'description' => st('The group the message is about.'),
       'target_type' => 'node',
       'foreign keys' => array(
         'node' => array(

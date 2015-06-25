@@ -110,7 +110,7 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
     // Check the field(s) extracted from the node.
     $this->assertEqual(
       (int) $node->nid,
-      (int) $wrapper->message_ui_node->nid->value()
+      (int) $wrapper->message_node->nid->value()
     );
   }
 
