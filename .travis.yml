@@ -9,6 +9,14 @@ matrix:
   fast_finish: true
 
 
+addons:
+  # Extra packages needed to run the PHP server on 5.3.
+  apt:
+    packages:
+    - php5-cgi
+    - php5-mysql
+
+
 mysql:
   database: drupal
   username: root
@@ -16,9 +24,6 @@ mysql:
 
 
 before_install:
-  # Update OS.
-  - sudo apt-get update > /dev/null
-
   # Update Composer & set path.
   - composer self-update
   - sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
@@ -26,9 +31,6 @@ before_install:
 
 
 install:
-  # Install php packages required for running a web server from drush on php 5.3.
-  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
-
   # Catch outgoing emails so we don't get errors.
   - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
 
