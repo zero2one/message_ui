@@ -106,7 +106,6 @@ class MessageUiOgTestLogging extends DrupalWebTestCase {
     $settings = array();
     $settings['type'] = self::TYPE;
     $settings[OG_GROUP_FIELD][LANGUAGE_NONE][0]['value'] = 1;
-    $settings[OG_ACCESS_FIELD][LANGUAGE_NONE][0]['value'] = 1;
     $settings['uid'] = $this->admin->uid;
     $this->groupNode = $this->drupalCreateNode($settings);
     $this->assertTrue(og_is_group('node', $this->groupNode));
