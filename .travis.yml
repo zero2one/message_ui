@@ -1,5 +1,6 @@
-language: php
+sudo: true
 
+language: php
 
 php:
   - 5.5
@@ -7,14 +8,6 @@ php:
 
 matrix:
   fast_finish: true
-
-
-addons:
-  # Extra packages needed to run the PHP server on 5.3.
-  apt:
-    packages:
-    - php5-cgi
-    - php5-mysql
 
 
 mysql:
@@ -31,6 +24,9 @@ before_install:
 
 
 install:
+  # Install php packages required for running a web server from drush on php 5.3.
+  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
   # Catch outgoing emails so we don't get errors.
   - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
 
@@ -57,7 +53,7 @@ before_script:
   # Start a web server on port 8080.
   # Run in the background; wait for initialization.
   - drush runserver 127.0.0.1:8080 &
-  - sleep 5
+  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
 
 
 script:
