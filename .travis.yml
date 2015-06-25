@@ -17,6 +17,9 @@ mysql:
 
 
 before_install:
+  # Update package info.
+  - sudo apt-get update > /dev/null
+
   # Update Composer & set path.
   - composer self-update
   - sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
