@@ -53,7 +53,7 @@ class MessageUiOgTestLogging extends DrupalWebTestCase {
     $modules = array('message', 'og', 'og_ui', 'message_ui_node', 'message_ui_og');
     parent::setUp($modules);
 
-    // create a new user with some permissions you need; then log in.
+    // Create a new user with some permissions you need; then log in.
     $this->admin = $this->drupalCreateUser(array(
         'administer content types',
         'administer nodes'
@@ -242,9 +242,9 @@ class MessageUiOgTestLogging extends DrupalWebTestCase {
    * Test disabling the creation of new activity messages.
    */
   public function testDisableLogging() {
-    $this->assertTrue(message_ui_og_is_enabled());
-    message_ui_og_disable();
-    $this->assertFalse(message_ui_og_is_enabled());
+    $this->assertTrue(message_ui_og_message_is_enabled());
+    message_ui_og_message_disable();
+    $this->assertFalse(message_ui_og_message_is_enabled());
 
     // User 1 requests group membership.
     $user1 = $this->drupalCreateUser();
@@ -280,8 +280,8 @@ class MessageUiOgTestLogging extends DrupalWebTestCase {
     $this->assertEqual(1, $this->countMessages());
 
     // Test with logging activated.
-    message_ui_og_enable();
-    $this->assertTrue(message_ui_og_is_enabled());
+    message_ui_og_message_enable();
+    $this->assertTrue(message_ui_og_message_is_enabled());
 
     // User 3 joins group.
     $user3 = $this->drupalCreateUser();
@@ -313,7 +313,7 @@ class MessageUiOgTestLogging extends DrupalWebTestCase {
       ->entityCondition('entity_type', 'message');
 
     if ($action) {
-      $query->propertyCondition('type', 'message_ui_og_' . $action);
+      $query->propertyCondition('type', 'og_' . $action);
     }
 
     $count = (int) $query->execute();

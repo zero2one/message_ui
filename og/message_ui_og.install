@@ -31,7 +31,7 @@ function _message_ui_og_install_message_types() {
   $types   = array();
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_approve",
+    "name" : "og_approve",
     "description" : "Organic Groups : Approved membership",
     "argument_keys" : [],
     "argument" : [],
@@ -55,7 +55,7 @@ function _message_ui_og_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_request",
+    "name" : "og_request",
     "description" : "Organic Groups : Requested membership",
     "argument_keys" : [],
     "argument" : [],
@@ -79,7 +79,7 @@ function _message_ui_og_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_join",
+    "name" : "og_join",
     "description" : "Organic Groups : Joined group",
     "argument_keys" : [],
     "argument" : [],
@@ -103,7 +103,7 @@ function _message_ui_og_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_leave",
+    "name" : "og_leave",
     "description" : "Organic Groups : Left group",
     "argument_keys" : [],
     "argument" : [],
@@ -127,7 +127,7 @@ function _message_ui_og_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_reject",
+    "name" : "og_reject",
     "description" : "Organic Groups : Rejected membership request",
     "argument_keys" : [],
     "argument" : [],
@@ -151,7 +151,7 @@ function _message_ui_og_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_remove",
+    "name" : "og_remove",
     "description" : "Organic Groups : Removed from group",
     "argument_keys" : [],
     "argument" : [],
@@ -175,7 +175,7 @@ function _message_ui_og_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_revoke",
+    "name" : "og_revoke",
     "description" : "Organic Groups : Revoke membership request",
     "argument_keys" : [],
     "argument" : [],
@@ -199,7 +199,7 @@ function _message_ui_og_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_block",
+    "name" : "og_block",
     "description" : "Organic Groups : Blocked from group",
     "argument_keys" : [],
     "argument" : [],
@@ -223,7 +223,7 @@ function _message_ui_og_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_og_unblock",
+    "name" : "og_unblock",
     "description" : "Organic Groups : Unblocked from group",
     "argument_keys" : [],
     "argument" : [],
@@ -259,7 +259,7 @@ function _message_ui_og_install_message_types() {
  */
 function _message_ui_og_install_create_fields($actions) {
   $types = array(
-    'message_ui_user' => array(
+    'message_user' => array(
       'label' => st('User'),
       'description' => st('The user the membership is about.'),
       'target_type' => 'user',
@@ -272,7 +272,7 @@ function _message_ui_og_install_create_fields($actions) {
         ),
       ),
     ),
-    'message_ui_group' => array(
+    'message_group' => array(
       'label' => st('Group'),
       'description' => st('The group the membership is about.'),
       'target_type' => 'node',
@@ -329,9 +329,9 @@ function _message_ui_og_install_create_fields($actions) {
     }
 
     foreach ($actions as $action) {
-      // e.g. message-message_ui_og_ACTION-message_ui_user
+      // e.g. og_insert
       $instance = array(
-        'bundle' => 'message_ui_og_' . $action,
+        'bundle' => 'og_' . $action,
         'default_value' => NULL,
         'default_value_function' => '',
         'deleted' => 0,

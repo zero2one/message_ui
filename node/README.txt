@@ -43,9 +43,9 @@ This messages can be changed using the message interface:
 /admin/structure/messages
 
 The following message types are defined:
-- message_ui_node_insert : when a node is created.
-- message_ui_node_update : when a node is updated.
-- message_ui_node_delete : when a node is deleted.
+- node_insert : when a node is created.
+- node_update : when a node is updated.
+- node_delete : when a node is deleted.
 
 NOTE: an update will only be logged if:
 - The update is done by somebody else then the person who did the last update.

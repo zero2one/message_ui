@@ -37,14 +37,14 @@ DISABLE ACTIVITY LOGGING
 Some scripts (e.g. batch actions) can require that no activity is logged. You
 can temporarily disable this for this module by using the disable method:
 
-message_ui_og_disable();
+message_ui_og_message_disable();
 
 This will disable the activity logging only during the current page request.
 Disabling is not persistent between requests.
 
 You can enable the activity logging using:
 
-message_ui_og_enable();
+message_ui_og_message_enable();
 
 
 ACTIVITY MESSAGES
