@@ -48,10 +48,17 @@ before_script:
   # Create new site with simpletest enabled.
   - drush -y qd module_test --profile=testing --no-server --locale=en --site-name=drupal --account-pass=drupal --account-mail=admin@drupal.test --db-url=mysql://root:@127.0.0.1/drupal --uri=http://127.0.0.1:8080 --enable=simpletest
 
-  # Reference and enable message_ui modules.
+  # Add symbolic link to the message_ui module.
   - ln -s $(readlink -e $(cd -)) module_test/drupal/sites/all/modules/message_ui
+
+  # Go to the drupal root folder.
   - cd module_test/drupal
-  - drush --yes pm-enable message_ui_comment message_ui_node message_ui_og
+
+  # Download modules needed to run the tests.
+  - drush -y dl views views_bulk_operations
+
+  # Enable the message modules.
+  - drush -y en message_ui_comment message_ui_node message_ui_og
 
   # Start a web server on port 8080.
   # Run in the background; wait for initialization.
