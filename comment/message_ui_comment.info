@@ -1,7 +1,8 @@
-name = Comments
+name = Message : Comments
 description = Logs activity messages on comments and provides the message formats related to these acivities.
 core = 7.x
 package = Message
+dependencies[] = comment
 dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = message

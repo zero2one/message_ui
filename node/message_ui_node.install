@@ -25,7 +25,7 @@ function _message_ui_node_install_message_types() {
   $types   = array();
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_node_insert",
+    "name" : "node_insert",
     "description" : "Node : Create",
     "argument_keys" : [],
     "argument" : [],
@@ -49,7 +49,7 @@ function _message_ui_node_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_node_update",
+    "name" : "node_update",
     "description" : "Node : Update",
     "argument_keys" : [],
     "argument" : [],
@@ -73,7 +73,7 @@ function _message_ui_node_install_message_types() {
   );
   $types[] = entity_import(
     'message_type', '{
-    "name" : "message_ui_node_delete",
+    "name" : "node_delete",
     "description" : "Node : Delete",
     "argument_keys" : [],
     "argument" : [],
@@ -107,13 +107,13 @@ function _message_ui_node_install_message_types() {
  * @param array $actions
  *   The possible action types.
  */
-function _message_ui_node_install_create_fields($actions) {
+function _message_ui_node_install_create_fields(array $actions) {
   $types = array(
     'message_node' => array(
       'label' => st('Node'),
       'description' => st('The node where this message is about.'),
     ),
-    'message_ui_group' => array(
+    'message_group' => array(
       'label' => st('Group'),
       'description' => st('The (optional) group the node belongs to.'),
     ),
@@ -168,9 +168,9 @@ function _message_ui_node_install_create_fields($actions) {
     }
 
     foreach ($actions as $action) {
-      // message-message_ui_node_ACTION-message_ui_node
+      // Example : node_ACTION-message_node.
       $instance = array(
-        'bundle' => 'message_ui_node_' . $action,
+        'bundle' => 'node_' . $action,
         'default_value' => NULL,
         'default_value_function' => '',
         'deleted' => 0,

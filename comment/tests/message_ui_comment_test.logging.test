@@ -34,6 +34,7 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
    * Get the test info.
    *
    * @return array
+   *   Test information array.
    */
   public static function getInfo() {
     return array(
@@ -74,7 +75,7 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
       array('insert' => 'insert', 'update' => 'update', 'delete' => 'delete')
     );
 
-    // create a new user with some permissions you need; then log in.
+    // Create a new user with some permissions you need; then log in.
     $permissions = array(
       'administer nodes',
       'bypass node access',
@@ -100,7 +101,7 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
     // Create a comment.
     $edit = array(
       'subject' => $this->randomName(),
-      'comment_body[und][0][value]' => $this->randomName()
+      'comment_body[und][0][value]' => $this->randomName(),
     );
     $this->drupalPost(
       'node/' . $node->nid,
@@ -114,7 +115,7 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
     $comment = current(comment_get_recent(1));
     $edit = array(
       'subject' => $this->randomName(),
-      'comment_body[und][0][value]' => $this->randomName()
+      'comment_body[und][0][value]' => $this->randomName(),
     );
     $this->drupalPost(
       'comment/' . $comment->cid . '/edit',
@@ -132,7 +133,7 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
 
     $edit = array(
       'subject' => $this->randomName(),
-      'comment_body[und][0][value]' => $this->randomName()
+      'comment_body[und][0][value]' => $this->randomName(),
     );
     $this->drupalPost(
       'comment/' . $comment->cid . '/edit',
@@ -146,7 +147,7 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
     $this->drupalLogin($this->editor);
     $edit = array(
       'subject' => $this->randomName(),
-      'comment_body[und][0][value]' => $this->randomName()
+      'comment_body[und][0][value]' => $this->randomName(),
     );
     $this->drupalPost(
       'comment/' . $comment->cid . '/edit',
@@ -160,7 +161,7 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
     $this->drupalLogin($this->admin);
     $edit = array(
       'subject' => $this->randomName(),
-      'comment_body[und][0][value]' => $this->randomName()
+      'comment_body[und][0][value]' => $this->randomName(),
     );
     $this->drupalPost(
       'comment/' . $comment->cid . '/edit',
@@ -178,10 +179,10 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
     // Avoid automatic deletion of the messages if the node is deleted.
     variable_set('message_delete_on_entity_delete', array());
 
-    // Create & delete
+    // Create & delete.
     $edit = array(
       'subject' => $this->randomName(),
-      'comment_body[und][0][value]' => $this->randomName()
+      'comment_body[und][0][value]' => $this->randomName(),
     );
     $this->drupalPost(
       'node/' . $node->nid,
@@ -202,10 +203,9 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
    * Test disabling the creation of new activity messages.
    */
   public function testDisableLogging() {
-    $this->assertTrue(message_ui_comment_is_enabled());
-    message_ui_comment_disable();
-    $this->assertFalse(message_ui_comment_is_enabled());
-
+    $this->assertTrue(message_ui_comment_message_is_enabled());
+    message_ui_comment_message_disable();
+    $this->assertFalse(message_ui_comment_message_is_enabled());
 
     // Create a node.
     $node = $this->drupalCreateNode(array(
@@ -240,8 +240,8 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
     $this->assertEqual(0, $this->countMessages());
 
     // Enable the logging again.
-    message_ui_comment_enable();
-    $this->assertTrue(message_ui_comment_is_enabled());
+    message_ui_comment_message_enable();
+    $this->assertTrue(message_ui_comment_message_is_enabled());
 
     // Create a comment with enabled.
     $comment = new stdClass();
@@ -272,10 +272,11 @@ class MessageUiCommentTestLogging extends DrupalWebTestCase {
       ->entityCondition('entity_type', 'message');
 
     if ($action) {
-      $query->propertyCondition('type', 'message_ui_comment_' . $action);
+      $query->propertyCondition('type', 'comment_' . $action);
     }
 
     $count = (int) $query->execute();
     return $count;
   }
+
 }

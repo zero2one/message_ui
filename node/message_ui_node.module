@@ -95,15 +95,15 @@ function message_ui_node_node_type_delete($info) {
  *   The type type we want to log a message for.
  * @param string $action
  *   The action performed on the type. The supported actions are:
- *   - insert
- *   - update
- *   - delete
+ *   - insert.
+ *   - update.
+ *   - delete.
  *
  * @return bool
  *   Needs an message yes/no.
  */
 function message_ui_node_needs_message($type, $action) {
-  if (!message_ui_node_is_enabled()) {
+  if (!message_ui_node_message_is_enabled()) {
     return FALSE;
   }
 
@@ -118,11 +118,11 @@ function message_ui_node_needs_message($type, $action) {
 
   // Check if messages are deleted when the node is deleted.
   // If so => no message needed.
-  if ($action === 'delete'
-    && in_array('node', variable_get(
-        'message_delete_on_entity_delete', array('node', 'user', 'taxonomy_term', 'comment')
-      ))
-  ) {
+  $message_delete = variable_get(
+    'message_delete_on_entity_delete',
+    array('node', 'user', 'taxonomy_term', 'comment')
+  );
+  if ($action === 'delete' && in_array('node', $message_delete)) {
     return FALSE;
   }
 
@@ -139,7 +139,7 @@ function message_ui_node_needs_message($type, $action) {
  *      duplicates for.
  *   4. Checks if that message is by the same user as the one updating the node.
  *
- * @param stdClass $node
+ * @param object $node
  *   The node that is being updated.
  *
  * @return bool
@@ -159,12 +159,13 @@ function message_ui_node_update_needs_message($node) {
   }
 
   // 3. Check if last message was one of the types we don't want to duplicate.
-  $types = array('message_ui_node_insert', 'message_ui_node_update');
+  $types = array('node_insert', 'node_update');
   if (!in_array($message->getBundle(), $types)) {
     return TRUE;
   }
 
-  // 4. Check if the last message was for another user then the new revision uid.
+  // 4. Check if the last message was for another user then the
+  // new revision uid.
   if (empty($node->old_vid)) {
     // If revisions is of we can't validate if the update is done by another
     // user then the last update.
@@ -175,16 +176,11 @@ function message_ui_node_update_needs_message($node) {
     return TRUE;
   }
 
-  // No update needed.
-  // @TODO: should we update the message timestamp? This could lead to wrong data.
-  // $message->timestamp->set($node->changed);
-  // $message->save();
-
   return FALSE;
 }
 
 /**
- * Helper to get the variable name to access the activity config per content type.
+ * Get the variable name to access the activity config per content type.
  *
  * @param string $type
  *   The content type.
@@ -246,12 +242,12 @@ function message_ui_node_node_delete($node) {
 /**
  * Create a message for a node based on the given action.
  *
- * @param stdClass $node
+ * @param object $node
  *   The node that needs an message.
  * @param string $action
  *   The action performed on the node.
  *
- * @return stdClass
+ * @return object
  *   The saved message.
  */
 function message_ui_node_create_message($node, $action) {
@@ -266,14 +262,14 @@ function message_ui_node_create_message($node, $action) {
   );
 
   $message = message_create(
-    'message_ui_node_' . $action,
+    'node_' . $action,
     array('arguments' => $arguments)
   );
 
   $wrapper = entity_metadata_wrapper('message', $message);
-  $wrapper->message_ui_node->set($node);
+  $wrapper->message_node->set($node);
   if ($group_nid) {
-    $wrapper->message_ui_group->set($group_nid);
+    $wrapper->message_group->set($group_nid);
   }
   $wrapper->save();
 
@@ -283,12 +279,13 @@ function message_ui_node_create_message($node, $action) {
 /**
  * Get the last stored message for a given node.
  *
- * @param stdClass $node
+ * @param object $node
  *   The node we want to load the message for.
  * @param int $time_ago
  *   The minimum timestamp the record must have to be included in the query.
  *
  * @return NULL | EntityMetadataWrapper
+ *   The message wrapped by EntityMetadataWrapper.
  */
 function message_ui_node_get_last_message($node, $time_ago = 0) {
   $query = new entityFieldQuery();
@@ -314,7 +311,7 @@ function message_ui_node_get_last_message($node, $time_ago = 0) {
 /**
  * Fetch the group of a node.
  *
- * @param stdClass $node
+ * @param object $node
  *   A node to search its group.
  *
  * @return int | NULL
@@ -354,7 +351,7 @@ function _message_ui_node_get_node_group($node) {
  * The activity will only be disabled during the script execution.
  * It is not persistent over different requests.
  */
-function message_ui_node_disable() {
+function message_ui_node_message_disable() {
   $enabled = &drupal_static('message_ui_node_status');
   $enabled = 0;
 }
@@ -362,7 +359,7 @@ function message_ui_node_disable() {
 /**
  * Enable the node activity logging (default state).
  */
-function message_ui_node_enable() {
+function message_ui_node_message_enable() {
   $enabled = &drupal_static('message_ui_node_status');
   $enabled = 1;
 }
@@ -373,7 +370,7 @@ function message_ui_node_enable() {
  * @return bool
  *   Enabled.
  */
-function message_ui_node_is_enabled() {
+function message_ui_node_message_is_enabled() {
   $enabled = &drupal_static('message_ui_node_status', 1);
   // By default enabled.
   if (is_null($enabled)) {

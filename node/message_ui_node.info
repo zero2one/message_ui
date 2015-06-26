@@ -1,4 +1,4 @@
-name = Node
+name = Message : Node
 description = Logs activity messages on nodes and provides the message types related to these acivities.
 core = 7.x
 package = Message

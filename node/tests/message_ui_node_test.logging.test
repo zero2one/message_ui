@@ -34,6 +34,7 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
    * Get the test info.
    *
    * @return array
+   *   The test information.
    */
   public static function getInfo() {
     return array(
@@ -75,7 +76,7 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
     );
     $this->refreshVariables();
 
-    // create a new user with some permissions you need; then log in.
+    // Create a new user with some permissions you need; then log in.
     $permissions = array(
       'administer nodes',
       'bypass node access',
@@ -110,7 +111,7 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
     // Check the field(s) extracted from the node.
     $this->assertEqual(
       (int) $node->nid,
-      (int) $wrapper->message_ui_node->nid->value()
+      (int) $wrapper->message_node->nid->value()
     );
   }
 
@@ -207,9 +208,9 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
    * Test disabling the creation of new activity messages.
    */
   public function testDisableEnableLogging() {
-    $this->assertTrue(message_ui_node_is_enabled());
-    message_ui_node_disable();
-    $this->assertFalse(message_ui_node_is_enabled());
+    $this->assertTrue(message_ui_node_message_is_enabled());
+    message_ui_node_message_disable();
+    $this->assertFalse(message_ui_node_message_is_enabled());
 
     // Create a node with activity disabled.
     $node = $this->drupalCreateNode(array(
@@ -229,8 +230,8 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
     variable_set('message_delete_on_entity_delete', array());
     node_delete($node->nid);
 
-    message_ui_node_enable();
-    $this->assertTrue(message_ui_node_is_enabled());
+    message_ui_node_message_enable();
+    $this->assertTrue(message_ui_node_message_is_enabled());
     $this->assertEqual(0, $this->countMessages());
 
     // Create a node with activity enabled.
@@ -258,10 +259,11 @@ class MessageUiNodeTestLogging extends DrupalWebTestCase {
       ->entityCondition('entity_type', 'message');
 
     if ($action) {
-      $query->propertyCondition('type', 'message_ui_node_' . $action);
+      $query->propertyCondition('type', 'node_' . $action);
     }
 
     $count = (int) $query->execute();
     return $count;
   }
+
 }

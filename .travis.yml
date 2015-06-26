@@ -1,0 +1,70 @@
+sudo: false
+
+
+language: php
+
+
+php:
+  - 5.5
+
+
+matrix:
+  fast_finish: true
+
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+
+before_install:
+  # Update Composer & set path.
+  - composer self-update
+  - sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+  - source $HOME/.bashrc
+
+
+install:
+  # Catch outgoing emails so we don't get errors.
+  - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
+
+  # Install drush globally.
+  - composer global require drush/drush:6.*
+
+  # Install php code sniffer.
+  - composer global require drupal/coder
+  - phpcs --config-set installed_paths ~/.composer/vendor/drupal/coder/coder_sniffer
+
+
+before_script:
+  # Navigate out of module directory to prevent recursive module lookup.
+  - cd ../..
+
+  # Create new site with simpletest enabled.
+  - drush -y qd module_test --profile=testing --no-server --locale=en --site-name=drupal --account-pass=drupal --account-mail=admin@drupal.test --db-url=mysql://root:@127.0.0.1/drupal --uri=http://127.0.0.1:8080 --enable=simpletest
+
+  # Add symbolic link to the message_ui module.
+  - ln -s $(readlink -e $(cd -)) module_test/drupal/sites/all/modules/message_ui
+
+  # Go to the drupal root folder.
+  - cd module_test/drupal
+
+  # Download modules needed to run the tests.
+  - drush -y dl views views_bulk_operations
+
+  # Enable the message modules.
+  - drush -y en message_ui_comment message_ui_node message_ui_og
+
+  # Start a web server on port 8080.
+  # Run in the background; wait for initialization.
+  - drush runserver --server=builtin 127.0.0.1:8080 &
+  - sleep 5
+
+
+script:
+  # Run the Simpletest suite.
+  - drush test-run 'Message UI' --uri=http://127.0.0.1:8080
+
+  # Check coding standards.
+  - phpcs --standard=Drupal -p --colors --extensions=php,module,inc,install,test,profile,theme,js,css,info $TRAVIS_BUILD_DIR

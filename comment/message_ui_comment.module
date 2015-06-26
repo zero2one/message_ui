@@ -16,9 +16,8 @@
  * @see message_ui_comment_node_type_form_save()
  */
 function message_ui_comment_form_node_type_form_alter(
-  &$form, &$form_state, $form_id
+  array &$form, array &$form_state, $form_id
 ) {
-
   $info = $form['#node_type'];
   $default_config = array();
   if (!empty($info->type)) {
@@ -40,7 +39,7 @@ function message_ui_comment_form_node_type_form_alter(
   $form['message_ui']['message_ui_comment'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Log comment activity when'),
-    '#description' => t('Select what comment activities should be saved in the activity log.'),
+    '#description' => t('Select what comment activities should be saved in the message log.'),
     '#options' => array(
       'insert' => t('A comment is created'),
       'update' => t('A comment is updated'),
@@ -56,9 +55,14 @@ function message_ui_comment_form_node_type_form_alter(
 /**
  * Saves the type type specific message settings.
  *
+ * @param array $form
+ *   The form.
+ * @param array $form_state
+ *   The current form state.
+ *
  * @see message_ui_comment_form_node_type_form_alter
  */
-function message_ui_comment_node_type_form_save($form, $form_state) {
+function message_ui_comment_node_type_form_save(array $form, array $form_state) {
   $values = $form_state['values'];
 
   // Save the configuration.
@@ -97,15 +101,15 @@ function message_ui_comment_node_type_delete($info) {
  *   This supports also content types prefixed with the "comment_node_" prefix.
  * @param string $action
  *   The action performed on the type. The supported actions are:
- *   - insert
- *   - update
- *   - delete
+ *   - insert.
+ *   - update.
+ *   - delete.
  *
  * @return bool
  *   Needs an message yes/no.
  */
 function message_ui_comment_needs_message($type, $action) {
-  if (!message_ui_comment_is_enabled()) {
+  if (!message_ui_comment_message_is_enabled()) {
     return FALSE;
   }
 
@@ -123,11 +127,11 @@ function message_ui_comment_needs_message($type, $action) {
 
   // Check if messages are deleted when the node is deleted.
   // If so => no message needed.
-  if ($action === 'delete'
-    && in_array('comment', variable_get(
-        'message_delete_on_entity_delete', array('node', 'user', 'taxonomy_term', 'comment')
-      ))
-  ) {
+  $message_delete = variable_get(
+    'message_delete_on_entity_delete',
+    array('node', 'user', 'taxonomy_term', 'comment')
+  );
+  if ($action === 'delete' && in_array('comment', $message_delete)) {
     return FALSE;
   }
 
@@ -137,21 +141,21 @@ function message_ui_comment_needs_message($type, $action) {
 /**
  * Helper to determine if a comment update needs a revision.
  *
- * This is different then @see message_ui_comment_needs_message() as this:
+ * This is different then message_ui_comment_needs_message() as this:
  *   1. Checks the configuration for the node type.
  *   2. Checks if there is an message within the last 6 hours.
  *   3. Checks if the last message type is one of the types we don't want
  *      duplicates for.
  *   4. Checks if that message is by the same user as the one updating the node.
  *
- * @param stdClass $comment
+ * @param object $comment
  *   The comment that is being updated.
  *
  * @return bool
  *   Needs an update yes/no.
  */
 function message_ui_comment_update_needs_message($comment) {
-  if (!message_ui_comment_is_enabled()) {
+  if (!message_ui_comment_message_is_enabled()) {
     return FALSE;
   }
 
@@ -168,27 +172,24 @@ function message_ui_comment_update_needs_message($comment) {
   }
 
   // 3. Check if last message was one of the types we don't want to duplicate.
-  $types = array('message_ui_comment_insert', 'message_ui_comment_update');
+  $types = array('comment_insert', 'comment_update');
   if (!in_array($message->getBundle(), $types)) {
     return TRUE;
   }
 
-  // @TODO: 4. Check if the last message was for another user then the one updating the comment.
-  $account = $GLOBALS['user'];
-  if ((int) $account->uid !== (int) $message->user->uid->value()) {
+  // 4. Check if the last message was for another user then the one
+  // updating the comment.
+  global $user;
+  if ((int) $user->uid !== (int) $message->user->uid->value()) {
     return TRUE;
   }
 
-  // No update needed.
-  // @TODO: should we update the message timestamp? This could lead to wrong data.
-  // $message->timestamp->set($node->changed);
-  // $message->save();
-
+  // No need for a message.
   return FALSE;
 }
 
 /**
- * Helper to get the variable name to access the activity config per content type.
+ * Get the variable name to access the activity config per content type.
  *
  * @param string $type
  *   The content type.
@@ -210,12 +211,12 @@ function message_ui_comment_variable_name($type) {
  *
  * This will also save the message in the database.
  *
- * @param stdClass $comment
+ * @param object $comment
  *   The comment that needs an message.
  * @param string $action
  *   The action performed on the node.
  *
- * @return stdClass
+ * @return object
  *   The saved message.
  */
 function message_ui_comment_create_message($comment, $action) {
@@ -230,15 +231,15 @@ function message_ui_comment_create_message($comment, $action) {
   );
 
   $message = message_create(
-    'message_ui_comment_' . $action,
+    'comment_' . $action,
     array('arguments' => $arguments)
   );
 
   $wrapper = entity_metadata_wrapper('message', $message);
-  $wrapper->message_ui_comment->set($comment);
-  $wrapper->message_ui_node->set($node);
+  $wrapper->message_comment->set($comment);
+  $wrapper->message_node->set($node);
   if ($group_nid) {
-    $wrapper->message_ui_group->set($group_nid);
+    $wrapper->message_group->set($group_nid);
   }
   $wrapper->save();
 
@@ -290,18 +291,19 @@ function message_ui_comment_comment_delete($comment) {
 /**
  * Get the last stored message for a given comment.
  *
- * @param stdClass $comment
+ * @param object $comment
  *   The comment we want to load the message for.
  * @param int $time_ago
  *   The minimum timestamp the record must have to be included in the query.
  *
  * @return NULL | EntityMetadataWrapper
+ *   Returns the node wrapped by EntityMetadataWrapper.
  */
 function message_ui_comment_get_last_message($comment, $time_ago = 0) {
   $query = new entityFieldQuery();
   $query
     ->entityCondition('entity_type', 'message')
-    ->fieldCondition('message_ui_comment', 'target_id', $comment->cid)
+    ->fieldCondition('message_comment', 'target_id', $comment->cid)
     ->propertyOrderBy('timestamp', 'DESC');
 
   if ($time_ago > 0) {
@@ -328,7 +330,7 @@ function message_ui_comment_get_last_message($comment, $time_ago = 0) {
  * The activity will only be disabled during the script execution.
  * It is not persistent over different requests.
  */
-function message_ui_comment_disable() {
+function message_ui_comment_message_disable() {
   $enabled = &drupal_static('message_ui_comment_status');
   $enabled = 0;
 }
@@ -336,7 +338,7 @@ function message_ui_comment_disable() {
 /**
  * Enable the comment activity logging (default state).
  */
-function message_ui_comment_enable() {
+function message_ui_comment_message_enable() {
   $enabled = &drupal_static('message_ui_comment_status');
   $enabled = 1;
 }
@@ -345,10 +347,11 @@ function message_ui_comment_enable() {
  * Check if the comment activity logging is enabled.
  *
  * @return bool
- *   Enabled.
+ *   Enabled (yes/no).
  */
-function message_ui_comment_is_enabled() {
+function message_ui_comment_message_is_enabled() {
   $enabled = &drupal_static('message_ui_comment_status', 1);
+
   // By default enabled.
   if (is_null($enabled)) {
     $enabled = 1;
