@@ -1,6 +1,14 @@
-sudo: true
+sudo: false
+
+addons:
+  apt:
+    sources:
+    # Install packages required for running a web server from drush on php 5.3.
+    - php5-cgi
+    - php5-mysql
 
 language: php
+
 
 php:
   - 5.5
@@ -17,9 +25,6 @@ mysql:
 
 
 before_install:
-  # Update package info.
-  - sudo apt-get update > /dev/null
-
   # Update Composer & set path.
   - composer self-update
   - sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
@@ -27,9 +32,6 @@ before_install:
 
 
 install:
-  # Install php packages required for running a web server from drush on php 5.3.
-  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
-
   # Catch outgoing emails so we don't get errors.
   - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
 
@@ -63,7 +65,7 @@ before_script:
   # Start a web server on port 8080.
   # Run in the background; wait for initialization.
   - drush runserver 127.0.0.1:8080 &
-  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
+  - sleep 5
 
 
 script:
