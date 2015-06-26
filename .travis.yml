@@ -1,11 +1,5 @@
 sudo: false
 
-addons:
-  apt:
-    sources:
-    # Install packages required for running a web server from drush on php 5.3.
-    - php5-cgi
-    - php5-mysql
 
 language: php
 
@@ -64,7 +58,7 @@ before_script:
 
   # Start a web server on port 8080.
   # Run in the background; wait for initialization.
-  - drush runserver 127.0.0.1:8080 &
+  - drush runserver --server=builtin 127.0.0.1:8080 &
   - sleep 5
 
 
